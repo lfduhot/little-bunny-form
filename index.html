@@ -3,56 +3,71 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Formulaire vers Google Sheets (Proxy alternatif)</title>
+  <title>Little Bunny Chat Log</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: sans-serif; background: #f9f9f9; padding: 2em; }
+    .chat-box { border: 1px solid #ccc; background: white; padding: 1em; max-width: 600px; margin: auto; border-radius: 8px; }
+    .messages { height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 1em; margin-bottom: 1em; background: #fff; border-radius: 6px; }
+    .msg { margin-bottom: 0.8em; }
+    .user { color: #0077cc; }
+    .bot { color: #cc5500; }
+    input, button { padding: 0.5em; font-size: 1em; }
+  </style>
 </head>
-<body style="font-family:sans-serif; padding:2em;">
-  <h2>Envoyer un message vers Google Sheets</h2>
-  <form id="messageForm">
-    <label for="nickname">Pseudo (nickname) :</label><br>
-    <input type="text" id="nickname" required><br><br>
-
-    <label for="role">Rôle :</label><br>
-    <input type="text" id="role" required><br><br>
-
-    <label for="type">Type de message :</label><br>
-    <input type="text" id="type" required><br><br>
-
-    <label for="content">Contenu :</label><br>
-    <textarea id="content" rows="4" cols="40" required></textarea><br><br>
-
-    <button type="submit">Envoyer</button>
-  </form>
-
-  <p id="status" style="margin-top:1em;"></p>
+<body>
+  <div class="chat-box">
+    <h2>Little Bunny Chat</h2>
+    <div class="messages" id="messages"></div>
+    <form id="chatForm">
+      <input type="text" id="userInput" placeholder="Écris ton message ici..." required style="width: 70%;">
+      <button type="submit">Envoyer</button>
+    </form>
+  </div>
 
   <script>
-    document.getElementById('messageForm').addEventListener('submit', function(e) {
-      e.preventDefault();
+    const webhookURL = "https://script.google.com/macros/s/AKfycbxEN8TKsLziYr4Fuy0jXLJIjJhC0MaPRpCcKFmBCjqWIZis5rivODtGhGa6BXC67yMLMw/exec";
+    const messagesDiv = document.getElementById("messages");
+    const form = document.getElementById("chatForm");
+    const input = document.getElementById("userInput");
 
-      const targetURL = "https://script.google.com/macros/s/AKfycbxEN8TKsLziYr4Fuy0jXLJIjJhC0MaPRpCcKFmBCjqWIZis5rivODtGhGa6BXC67yMLMw/exec";
-      const proxyURL = "https://cors-anywhere.herokuapp.com/" + targetURL;
+    function logMessage(nickname, role, type, content) {
+      const proxyURL = "https://cors-anywhere.herokuapp.com/" + webhookURL;
 
       fetch(proxyURL, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          nickname: document.getElementById("nickname").value,
-          role: document.getElementById("role").value,
-          type: document.getElementById("type").value,
-          content: document.getElementById("content").value
-        })
-      })
-      .then(response => response.text())
-      .then(data => {
-        document.getElementById("status").textContent = "✅ Message envoyé avec succès !";
-      })
-      .catch(error => {
-        document.getElementById("status").textContent = "❌ Erreur : " + error;
-      });
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nickname, role, type, content })
+      }).catch(err => console.error("Erreur d'envoi :", err));
+    }
+
+    function addMessage(content, senderClass) {
+      const msg = document.createElement("div");
+      msg.className = "msg " + senderClass;
+      msg.innerText = content;
+      messagesDiv.appendChild(msg);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const userMsg = input.value.trim();
+      if (!userMsg) return;
+      addMessage("🧑 " + userMsg, "user");
+      logMessage("Créateur", "User", "message", userMsg);
+
+      const bunnyReply = generateBunnyResponse(userMsg);
+      setTimeout(() => {
+        addMessage("🐰 " + bunnyReply, "bot");
+        logMessage("Little Bunny", "Assistant", "response", bunnyReply);
+      }, 600);
+
+      input.value = "";
     });
+
+    function generateBunnyResponse(input) {
+      return "Je t'ai bien entendu, Créateur : "" + input + "".";
+    }
   </script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Formulaire vers Google Sheets (CORS OK)</title>
+  <title>Formulaire vers Google Sheets (Proxy alternatif)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body style="font-family:sans-serif; padding:2em;">
@@ -30,8 +30,8 @@
     document.getElementById('messageForm').addEventListener('submit', function(e) {
       e.preventDefault();
 
-      const url = "https://script.google.com/macros/s/AKfycbxEN8TKsLziYr4Fuy0jXLJIjJhC0MaPRpCcKFmBCjqWIZis5rivODtGhGa6BXC67yMLMw/exec";
-      const proxyURL = "https://corsproxy.io/?" + encodeURIComponent(url);
+      const targetURL = "https://script.google.com/macros/s/AKfycbxEN8TKsLziYr4Fuy0jXLJIjJhC0MaPRpCcKFmBCjqWIZis5rivODtGhGa6BXC67yMLMw/exec";
+      const proxyURL = "https://cors-anywhere.herokuapp.com/" + targetURL;
 
       fetch(proxyURL, {
         method: "POST",

@@ -1,0 +1,55 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Formulaire vers Google Sheets</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family:sans-serif; padding:2em;">
+  <h2>Envoyer un message vers Google Sheets</h2>
+  <form id="messageForm">
+    <label for="nickname">Pseudo (nickname) :</label><br>
+    <input type="text" id="nickname" required><br><br>
+
+    <label for="role">Rôle :</label><br>
+    <input type="text" id="role" required><br><br>
+
+    <label for="type">Type de message :</label><br>
+    <input type="text" id="type" required><br><br>
+
+    <label for="content">Contenu :</label><br>
+    <textarea id="content" rows="4" cols="40" required></textarea><br><br>
+
+    <button type="submit">Envoyer</button>
+  </form>
+
+  <p id="status" style="margin-top:1em;"></p>
+
+  <script>
+    document.getElementById('messageForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      fetch("https://script.google.com/macros/s/AKfycbxEN8TKsLziYr4Fuy0jXLJIjJhC0MaPRpCcKFmBCjqWIZis5rivODtGhGa6BXC67yMLMw/exec", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          nickname: document.getElementById("nickname").value,
+          role: document.getElementById("role").value,
+          type: document.getElementById("type").value,
+          content: document.getElementById("content").value
+        })
+      })
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById("status").textContent = "✅ Message envoyé avec succès !";
+      })
+      .catch(error => {
+        document.getElementById("status").textContent = "❌ Erreur : " + error;
+      });
+    });
+  </script>
+</body>
+</html>
